@@ -5,7 +5,7 @@ const obtenerAreas = async(req,res) => {
         const [rows] = await pool.query('SElECT * FROM areas');
         res.json(rows);
     } catch (error) {
-        res.status(500).json({Mensaje: 'Error al obtener las categorías'});
+        res.status(500).json({Mensaje: 'Error al obtener las áreas'});
     }
 };
 

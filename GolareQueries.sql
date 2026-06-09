@@ -40,13 +40,15 @@ departamento ENUM('Almacen','Ingenieria','Ventas','Administracion')
 CREATE TABLE lotes (
 id INT AUTO_INCREMENT PRIMARY KEY,
 producto_id INT,
-numero_lote VARCHAR(100) NOT NULL,
+numero_lote VARCHAR(100) NOT NULL UNIQUE,
 fecha_caducidad DATE NOT NULL,
 cantidad_inicial INT NOT NULL,
 cantidad_disponible INT NOT NULL,
 estado ENUM('Activo','Agotado','Caducado'),
 FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE RESTRICT
 );
+
+drop table lotes;
 
 CREATE TABLE movimientos_inventario(
 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -60,6 +62,8 @@ comentarios TEXT,
 FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL,
 FOREIGN KEY (lote_id) REFERENCES lotes(id) ON DELETE RESTRICT
 );
+
+select * from productos;
 
 
 
