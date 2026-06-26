@@ -24,9 +24,10 @@ const obtenerLotesPorProductos = async(req,res) => {
 }
 
 const crearLotes = async(req,res) =>{
-    const {producto_id, numero_lote, fecha_caducidad, cantidad_inicial, cantidad_disponible, usuario_id, folio, comentarios} = req.body;
+    const {producto_id, numero_lote, fecha_caducidad, cantidad_inicial, folio, comentarios} = req.body;
+    const usuario_id = req.usuario.id;
 
-    if (!producto_id || !numero_lote || !fecha_caducidad || !cantidad_inicial || !cantidad_disponible || !usuario_id || !folio){
+    if (!producto_id || !numero_lote || !fecha_caducidad || !cantidad_inicial || !usuario_id || !folio){
             return res.status(400).json({Mensaje: 'Faltan campos obligatorios'});
     }
     
@@ -40,7 +41,7 @@ const crearLotes = async(req,res) =>{
             (producto_id, numero_lote, fecha_caducidad, cantidad_inicial, cantidad_disponible, estado) 
             VALUES (?, ?, ?, ?, ?, 'Activo')
         `;
-        const [resultLote] = await conn.query(queryLote, [producto_id, numero_lote, fecha_caducidad, cantidad_inicial, cantidad_disponible]);
+        const [resultLote] = await conn.query(queryLote, [producto_id, numero_lote, fecha_caducidad, cantidad_inicial, cantidad_inicial]);
         
         const loteId = resultLote.insertId;
 
@@ -70,7 +71,8 @@ const crearLotes = async(req,res) =>{
 };
 
 const registrarSalida = async(req,res) => {
-    const {producto_id, cantidad_solicitada, usuario_id, folio, comentarios} = req.body;
+    const {producto_id, cantidad_solicitada, folio, comentarios} = req.body;
+    const usuario_id = req.usuario.id;
 
     if (!producto_id || !cantidad_solicitada || !usuario_id || !folio){
         return res.status(400).json({Mensaje: 'Faltan campos obligatorios para registrar salida'});
@@ -154,6 +156,9 @@ const eliminarLotes = async(req,res) => {
         res.json({Mensaje: 'Lote eliminado'});
     } catch (error) {
         console.error(error);
+        if (error.code === 'ER_ROW_IS_REFERENCED_2'){
+            return res.status(409).json({Mensaje: 'No se puede eliminar el lote pues ya hay cambios registrados en el Kardex'})
+        }
         res.status(500).json({Mensaje: 'Error al eliminar el lote'});
     }
 };

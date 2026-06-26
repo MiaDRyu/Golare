@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const {obtenerAreas, crearAreas, actualizarAreas, eliminarAreas} = require('../controllers/areaController');
+const {verificarToken} = require('../middlewares/authMiddleware');
 
-router.get('/', obtenerAreas);
-router.post('/', crearAreas);
-router.put('/:id', actualizarAreas);
-router.delete('/:id', eliminarAreas);
+router.get('/', verificarToken, obtenerAreas);
+router.post('/', verificarToken, crearAreas);
+router.put('/:id', verificarToken, actualizarAreas);
+router.delete('/:id', verificarToken, eliminarAreas);
 
 module.exports = router;
