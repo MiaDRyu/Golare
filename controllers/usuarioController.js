@@ -28,19 +28,19 @@ const registrarUsuario = async(req,res) => {
 }
 
 const loginUsuario = async(req,res) =>{
-    const {email, password} = req.body;
+    const {usuario, password} = req.body;
 
-    if (!email || !password){
+    if (!usuario || !password){
         return res.status(400).json({Mensaje: 'Faltan campos obligatorios'});
     }
 
     try {
-        const [users] = await pool.query('SELECT * FROM usuarios WHERE email = ?',[email]);
+        const [users] = await pool.query('SELECT * FROM usuarios WHERE nombre = ?',[nombre]);
         if (users.length === 0){
             return res.status(401).json({Mensaje: 'Credenciales inválidas'});
         }
 
-        const usuario = users[0];
+        const user = users[0];
 
         const isMatch = await bcrypt.compare(password, usuario.password_hash);
         if (!isMatch){
@@ -48,14 +48,15 @@ const loginUsuario = async(req,res) =>{
         }
 
         const payload = {
-            id: usuario.id,
-            nombre: usuario.nombre,
-            departamento: usuario.departamento
+            id: user.id,
+            nombre: user.nombre,
+            email: user.email,
+            departamento: user.departamento
         };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: '8h'});
 
-        res.status(200).json({Mensaje: 'Login exitoso!', token, usuario: payload});
+        res.status(200).json({Mensaje: 'Login exitoso!', token, user: payload});
     } catch (error) {
         console.error(error);
         res.status(500).json({Mensaje: 'Error al iniciar sesión'});
