@@ -12,7 +12,7 @@ const registrarUsuario = async(req,res) => {
     try{
         const [existingUser] = await pool.query('SELECT id FROM usuarios WHERE email = ?',[email]);
         if (existingUser.length > 0){
-            return res.status(400).json({Mensaje: 'El correo electrónico ya está registrado'});
+            return res.status(409).json({Mensaje: 'El correo electrónico ya está registrado'});
         }
 
         const saltRounds = 10;
