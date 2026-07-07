@@ -2,7 +2,7 @@ const pool = require('../config/db');
 
 const obtenerLotes = async(req,res) => {
     try{
-        const [rows] = await pool.query(`SELECT l.id, l.producto_id, l.numero_lote, l.fecha_caducidad, l.cantidad_inicial, l.cantidad_disponible, l.estado, p.nombre AS producto_nombre, p.sku AS producto_sku FROM lotes l JOIN productos p ON l.producto_id = p.id WHERE l.estado != 'Agotado' ORDER BY l.fecha_caducidad ASC`);
+        const [rows] = await pool.query(`SELECT l.id, l.producto_id, l.numero_lote, l.fecha_caducidad, l.cantidad_inicial, l.cantidad_disponible, l.estado, p.nombre AS producto_nombre, p.sku AS producto_sku, p.stock_minimo FROM lotes l JOIN productos p ON l.producto_id = p.id ORDER BY l.fecha_caducidad ASC`);
 
         res.json(rows);
     } catch (error){
