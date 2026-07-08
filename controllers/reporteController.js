@@ -4,7 +4,7 @@ const PDFDocument = require('pdfkit');
 const generarReporteHistorico = async (req,res) => {
     try {
         const [movimientos] = await pool.query(`
-            SELECT m.folio, m.tipo_movimiento, m.cantidad, m.fecha_hora, m.comentarios, p.nombre AS producto, p.sku, l.numero_lote, u.nombre AS usuario FROM movimientos_inventario m JOIN lotes l ON m.lote_id = l.id JOIN productos p ON l.producto_id = p.id JOIN usuarios u ON m.usuario_id = u.id ORDER BY m.fecha_hora DESC LIMIT 100`);
+            SELECT m.folio, m.tipo_movimiento, m.cantidad, m.fecha_hora, m.comentarios, p.nombre AS producto, p.sku, l.numero_lote, u.nombre AS usuario c.nombre_comercial FROM movimientos_inventario m JOIN lotes l ON m.lote_id = l.id JOIN productos p ON l.producto_id = p.id JOIN usuarios u ON m.usuario_id = u.id LEFT JOIN clientes c ON m.cliente_id = c.id ORDER BY m.fecha_hora DESC LIMIT 100`);
         
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename=Reporte_Inventario_Golare.pdf');
@@ -28,7 +28,7 @@ const generarReporteHistorico = async (req,res) => {
 
                 doc.fillColor(mov.tipo_movimiento === 'Entrada' ? 'green' : 'blue').fontSize(12).text(`${mov.tipo_movimiento.toUpperCase()} - Folio: ${mov.folio}`);
 
-                doc.fillColor('black').fontSize(10).text(`Fecha: ${fecha} | Usuario: ${mov.usuario}`).text(`Producto: [${mov.sku}] ${mov.producto}`).text(`Lote: ${mov.numero_lote} |Cantidad: ${mov.cantidad}`).text(`Comentarios: ${mov.comentarios || 'N/A'}`);
+                doc.fillColor('black').fontSize(10).text(`Fecha: ${fecha} | Usuario: ${mov.usuario}`).text(`Producto: [${mov.sku}] ${mov.producto}`).text(`Lote: ${mov.numero_lote} |Cantidad: ${mov.cantidad}`).text(`Cliente: ${mov.cliente || 'N/A'}`).text(`Comentarios: ${mov.comentarios || 'N/A'}`);
 
                 doc.moveDown(1);
                 doc.moveTo(50, doc.y).lineTo(550,doc.y).stroke();

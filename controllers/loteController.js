@@ -71,7 +71,7 @@ const crearLotes = async(req,res) =>{
 };
 
 const registrarSalida = async(req,res) => {
-    const {producto_id, cantidad_solicitada, folio, comentarios} = req.body;
+    const {producto_id, cantidad_solicitada, folio, comentarios, cliente_id} = req.body;
     const usuario_id = req.usuario.id;
 
     if (!producto_id || !cantidad_solicitada || !usuario_id || !folio){
@@ -111,7 +111,7 @@ const registrarSalida = async(req,res) => {
 
             await conn.query(`UPDATE lotes SET cantidad_disponible = cantidad_disponible - ?, estado = ? WHERE id = ?`, [cantidadADescontar, nuevoEstado, lote.id]);
 
-            await conn.query(`INSERT INTO movimientos_inventario (folio, lote_id, usuario_id, tipo_movimiento, cantidad, comentarios) VALUES(?,?,?,'Salida',?,?)`, [folio, lote.id, usuario_id, cantidadADescontar, comentarios || 'Salida de mercancía']);
+            await conn.query(`INSERT INTO movimientos_inventario (folio, lote_id, usuario_id, cliente_id, tipo_movimiento, cantidad, comentarios) VALUES(?,?,?,?,'Salida',?,?)`, [folio, lote.id, usuario_id, cliente_id || null, cantidadADescontar, comentarios || 'Salida de mercancía']);
         }
 
         await conn.commit();

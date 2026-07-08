@@ -2,7 +2,7 @@ const pool = require('../config/db');
 
 const obtenerMarcas = async(req,res) => {
     try{
-        const [rows] = await pool.query('SElECT * FROM marcas');
+        const [rows] = await pool.query('SELECT * FROM marcas');
         res.json(rows);
     } catch (error) {
         res.status(500).json({Mensaje: 'Error al obtener las categorías'});

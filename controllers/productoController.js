@@ -2,7 +2,7 @@ const pool = require('../config/db');
 
 const obtenerProductos = async(req,res) => {
     try{
-        const [rows] = await pool.query('SELECT p.id, p.sku, p.nombre, p.descripcion, p.precio, p.stock_minimo, p.estado, a.nombre AS area_nombre, m.nombre AS marca_nombre FROM productos AS p LEFT JOIN areas a ON p.area_id = a.id LEFT JOIN marcas m ON p.marca_id = m.id');
+        const [rows] = await pool.query('SELECT p.id, p.sku, p.nombre, p.presentacion, p.descripcion, p.precio, p.stock_minimo, p.estado, a.nombre AS area_nombre, m.nombre AS marca_nombre, e.nombre AS equipo_nombre FROM productos AS p LEFT JOIN areas a ON p.area_id = a.id LEFT JOIN marcas m ON p.marca_id = m.id LEFT JOIN equipos e ON p.equipo_id = e.id');
 
         res.json(rows);
     } catch (error){
@@ -12,13 +12,13 @@ const obtenerProductos = async(req,res) => {
 };
 
 const crearProductos = async(req,res) =>{
-    const {sku, nombre, descripcion, precio, stock_minimo, estado, area_id, marca_id} = req.body;
+    const {sku, nombre, presentacion, descripcion, precio, stock_minimo, estado, area_id, marca_id, equipo_id} = req.body;
 
     if (!sku || !nombre || !precio || stock_minimo === undefined){
         return res.status(400).json({Mensaje: 'Faltan campos obligatorios'});
     }
     try{
-        const [result] = await pool.query('INSERT INTO productos (sku, nombre, descripcion, precio, stock_minimo, estado, area_id, marca_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [sku, nombre, descripcion || null, precio, stock_minimo, estado, area_id || null, marca_id || null]);
+        const [result] = await pool.query('INSERT INTO productos (sku, nombre, presentacion, descripcion, precio, stock_minimo, estado, area_id, marca_id, equipo_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [sku, nombre, presentacion, descripcion || null, precio, stock_minimo, estado, area_id || null, marca_id || null, equipo_id || null]);
 
         res.status(201).json({Mensaje:"Producto registrado correctamente", id: result.insertId});
 
@@ -36,8 +36,8 @@ const crearProductos = async(req,res) =>{
 const actualizarProductos = async(req,res) =>{
     try{
         const {id} = req.params;
-        const {sku, nombre, descripcion, precio, stock_minimo, estado, area_id, marca_id} = req.body;
-        const [result] = await pool.query('UPDATE productos SET sku = ?, nombre = ?, descripcion = ?, precio = ?, stock_minimo = ?, estado = ?, area_id = ?, marca_id = ? WHERE id = ?', [sku, nombre, descripcion || null, precio, stock_minimo, estado, area_id || null, marca_id || null, id]);
+        const {sku, nombre, presentacion, descripcion, precio, stock_minimo, estado, area_id, marca_id, equipo_id} = req.body;
+        const [result] = await pool.query('UPDATE productos SET sku = ?, nombre = ?, presentacion = ?, descripcion = ?, precio = ?, stock_minimo = ?, estado = ?, area_id = ?, marca_id = ?, equipo_id = ? WHERE id = ?', [sku, nombre, presentacion, descripcion || null, precio, stock_minimo, estado, area_id || null, marca_id || null, equipo_id || null, id]);
         if (result.affectedRows === 0){
             return res.status(404).json({Mensaje: 'Producto no encontrado'});
         }

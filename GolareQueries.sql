@@ -29,6 +29,22 @@ FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE SET NULL,
 FOREIGN KEY (area_id) REFERENCES areas(id) ON DELETE SET NULL
 );
 
+ALTER TABLE productos
+ADD COLUMN presentacion VARCHAR(100) NULL AFTER nombre;
+
+CREATE TABLE equipos(
+id INT AUTO_INCREMENT PRIMARY KEY,
+nombre VARCHAR(100) NOT NULL,
+area_id INT NOT NULL,
+estado ENUM('Activo','Inactivo') DEFAULT 'Activo',
+fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+CONSTRAINT fk_equipo_area FOREIGN KEY (area_id) REFERENCES areas(id) ON DELETE RESTRICT
+);
+
+ALTER TABLE productos 
+ADD COLUMN equipo_id INT NULL AFTER area_id,
+ADD CONSTRAINT fk_producto_equipo FOREIGN KEY (equipo_id) REFERENCES equipos(id) ON DELETE RESTRICT; 
+
 CREATE TABLE usuarios(
 id INT AUTO_INCREMENT PRIMARY KEY,
 nombre VARCHAR(100) NOT NULL,
@@ -60,6 +76,21 @@ comentarios TEXT,
 FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL,
 FOREIGN KEY (lote_id) REFERENCES lotes(id) ON DELETE RESTRICT
 );
+
+CREATE TABLE clientes(
+id INT AUTO_INCREMENT PRIMARY KEY,
+nombre_comercial VARCHAR(150) NOT NULL,
+contacto_principal VARCHAR(100),
+telefono VARCHAR(20),
+correo VARCHAR(100),
+direccion TEXT,
+estado ENUM('Activo','Inactivo') DEFAULT 'Activo',
+fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE movimientos_inventario 
+ADD COLUMN cliente_id INT NULL AFTER usuario_id,
+ADD CONSTRAINT fk_mov_cliente FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE RESTRICT;
 
 ALTER TABLE lotes ADD UNIQUE(numero_lote);
 
