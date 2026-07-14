@@ -11,6 +11,7 @@ const alertasRoutes = require('./routes/alertaRoutes');
 const reporteRoutes = require('./routes/reporteRoutes');
 const equipoRoutes = require('./routes/equipoRoutes');
 const clienteRoutes = require('./routes/clienteRoutes');
+const movimientoRoutes = require('./routes/movimientoRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -28,6 +29,7 @@ app.use('/api/alertas', alertasRoutes);
 app.use('/api/reportes', reporteRoutes);
 app.use('/api/equipos', equipoRoutes);
 app.use('/api/clientes', clienteRoutes);
+app.use('/api/movimientos', movimientoRoutes);
 
 app.listen(PORT, () =>{
     console.log(`La app escucha en el puerto ${PORT}`);

@@ -2,7 +2,7 @@ const pool = require('../config/db');
 
 const obtenerProductos = async(req,res) => {
     try{
-        const [rows] = await pool.query('SELECT p.id, p.sku, p.nombre, p.presentacion, p.descripcion, p.precio, p.stock_minimo, p.estado, a.nombre AS area_nombre, m.nombre AS marca_nombre, e.nombre AS equipo_nombre FROM productos AS p LEFT JOIN areas a ON p.area_id = a.id LEFT JOIN marcas m ON p.marca_id = m.id LEFT JOIN equipos e ON p.equipo_id = e.id');
+        const [rows] = await pool.query('SELECT p.*, a.nombre AS area_nombre, m.nombre AS marca_nombre, e.nombre AS equipo_nombre FROM productos AS p LEFT JOIN areas a ON p.area_id = a.id LEFT JOIN marcas m ON p.marca_id = m.id LEFT JOIN equipos e ON p.equipo_id = e.id');
 
         res.json(rows);
     } catch (error){
