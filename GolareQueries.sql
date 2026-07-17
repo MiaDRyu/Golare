@@ -53,6 +53,37 @@ password_hash VARCHAR(100) NOT NULL,
 departamento ENUM('Almacen','Ingenieria','Ventas','Administracion')
 );
 
+ALTER TABLE usuarios
+MODIFY COLUMN departamento ENUM(
+    'Direccion',
+    'Sub-Direccion',
+    'Gerencia de Operaciones',
+    'Gerencia de Ventas',
+    'Gerencia de Administracion',
+    'Jefe de Almacen',
+    'Jefe de Ingenieria',
+    'Vendedor',
+    'Operador',
+    'Ingeniero',
+    'RH',
+    'Asesoria',
+    'Cobranza',
+    'Facturacion',
+    'Sistemas',
+    'Intendencia'
+) NOT NULL DEFAULT 'Operador';
+
+UPDATE usuarios SET departamento = 'Jefe de Almacen' WHERE departamento = 'Almacen';
+UPDATE usuarios SET departamento = 'Jefe de Ingenieria' WHERE departamento = 'Ingenieria';
+UPDATE usuarios SET departamento = 'Gerencia de Ventas' WHERE departamento = 'Ventas';
+UPDATE usuarios SET departamento = 'Direccion' WHERE departamento = 'administracion';
+
+DELETE FROM usuarios WHERE departamento is null;
+
+SET SQL_SAFE_UPDATES = 1;
+
+select * from usuarios;
+
 CREATE TABLE lotes (
 id INT AUTO_INCREMENT PRIMARY KEY,
 producto_id INT,

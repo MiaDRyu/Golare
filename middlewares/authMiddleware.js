@@ -26,6 +26,21 @@ const verificarToken = (req,res,next) => {
     }
 };
 
+const autorizarRoles = (...rolesPermitidos) =>{
+    return (req,res,next) => {
+        if (!req.usuario || !req.usuario.departamento){
+            return res.status(403).json({Mensaje: 'Acceso denegado'});
+        }
+
+        if(rolesPermitidos.includes(req.usuario.departamento)){
+            next();
+        } else {
+            return res.status(403).json({Mensaje: 'Acceso denegado'});
+        }
+    };
+};
+
 module.exports = {
-    verificarToken
+    verificarToken,
+    autorizarRoles
 };

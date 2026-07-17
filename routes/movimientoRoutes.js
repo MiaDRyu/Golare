@@ -3,6 +3,6 @@ const router = express.Router();
 const { obtenerHistorialMovimientos } = require('../controllers/movimientoController');
 const { verificarToken } = require('../middlewares/authMiddleware');
 
-router.get('/', verificarToken, obtenerHistorialMovimientos);
+router.get('/', verificarToken, autorizarRoles('Direccion','Subdireccion','Sistemas','Gerencia de Operaciones','Jefe de Almacen'), obtenerHistorialMovimientos);
 
 module.exports = router;
