@@ -80,6 +80,8 @@ UPDATE usuarios SET departamento = 'Direccion' WHERE departamento = 'administrac
 
 DELETE FROM usuarios WHERE departamento is null;
 
+INSERT INTO usuarios (nombre,email,password_hash,departamento) VALUES ('Admin', 'admin@gmail.com', '$2b$10$UN7fTRIlsiF3f/.y/Hq0EO25bGjGhFJey.KA/xjl/WvTBZMf6InGS', 'Direccion');
+
 SET SQL_SAFE_UPDATES = 1;
 
 select * from usuarios;

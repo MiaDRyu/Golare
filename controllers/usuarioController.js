@@ -63,7 +63,27 @@ const loginUsuario = async(req,res) =>{
     }
 };
 
+const obtenerRoles = async (req, res) => {
+    try {
+        const [rows] = await pool.query("SHOW COLUMNS FROM usuarios LIKE 'departamento'");
+        
+        if (rows.length > 0) {
+            const enumString = rows[0].Type;
+            const matches = enumString.match(/enum\((.*)\)/)[1];
+            const roles = matches.split(',').map(role => role.replace(/'/g, ''));
+            
+            res.status(200).json(roles);
+        } else {
+            res.status(404).json({ Mensaje: "No se encontró la columna de roles" });
+        }
+    } catch (error) {
+        console.error("Error al obtener los roles:", error);
+        res.status(500).json({ Mensaje: "Error al obtener los roles del sistema" });
+    }
+};
+
 module.exports = {
     registrarUsuario,
-    loginUsuario
+    loginUsuario,
+    obtenerRoles
 };
