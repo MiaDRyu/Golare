@@ -247,6 +247,12 @@ select * from lotes where producto_id = 65;
 
 select * from movimientos_inventario;
 
+ALTER TABLE equipos 
+ADD COLUMN marca_id INT NULL AFTER area_id,
+ADD CONSTRAINT fk_equipo_marca FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE RESTRICT; 
+
+ALTER TABLE equipos ADD COLUMN modelo VARCHAR(100) NOT NULL AFTER nombre;
+
 
 
 

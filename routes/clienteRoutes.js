@@ -1,9 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const {obtenerClientes, crearClientes} = require('../controllers/clienteController');
-const {verificarToken,autorizarRoles} = require('../middlewares/authMiddleware');
+const { obtenerClientes, crearCliente, actualizarCliente, eliminarCliente } = require('../controllers/clienteController');
+const { verificarToken, autorizarRoles } = require('../middlewares/authMiddleware');
 
-router.get('/', verificarToken, autorizarRoles('Direccion','Subdireccion','Sistemas','Gerencia de Operaciones','Jefe de Almacen','Gerencia de Ventas','Vendedor','Jefe de Ingenieria','Ingeniero'),obtenerClientes);
-router.post('/', verificarToken, autorizarRoles('Direccion','Subdireccion','Sistemas','Gerencia de Operaciones','Jefe de Almacen','Gerencia de Ventas','Vendedor','Jefe de Ingenieria','Ingeniero'),crearClientes);
+// GET: Todos pueden leer (para llenar selects y ver estadísticas)
+router.get('/', verificarToken, obtenerClientes);
+
+// POST y PUT: Área directiva, administrativa y comercial pueden crear/editar
+const rolesCreacion = ['Direccion', 'Sub-Direccion', 'Gerencia de Ventas', 'Vendedor', 'Sistemas', 'Gerencia de Administracion'];
+router.post('/', verificarToken, autorizarRoles(...rolesCreacion), crearCliente);
+router.put('/:id', verificarToken, autorizarRoles(...rolesCreacion), actualizarCliente);
+
+// DELETE: Solo la cúpula directiva puede desactivar clientes para no afectar métricas
+const rolesEliminacion = ['Direccion', 'Sub-Direccion', 'Sistemas'];
+router.delete('/:id', verificarToken, autorizarRoles(...rolesEliminacion), eliminarCliente);
 
 module.exports = router;
