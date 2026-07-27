@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {obtenerProductos, crearProductos, actualizarProductos, eliminarProductos} = require('../controllers/productoController');
+const {obtenerProductos, crearProductos, actualizarProductos, eliminarProductos, obtenerProductoPorSku} = require('../controllers/productoController');
 const {verificarToken, autorizarRoles} = require('../middlewares/authMiddleware');
 
 router.get('/', verificarToken, autorizarRoles('Direccion','Subdireccion','Sistemas','Gerencia de Operaciones','Jefe de Almacen','Gerencia de Ventas','Jefe de Ingenieria', 'Operador', 'Vendedor'), obtenerProductos);
