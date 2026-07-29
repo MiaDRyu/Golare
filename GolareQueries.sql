@@ -121,7 +121,47 @@ FOREIGN KEY (lote_id) REFERENCES lotes(id) ON DELETE RESTRICT,
 FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE RESTRICT
 );
 
+ALTER TABLE clientes ADD COLUMN razon_social VARCHAR(150) AFTER nombre_comercial;
 
+ALTER TABLE movimientos_inventario ADD COLUMN precio_venta DECIMAL(10,2) DEFAULT NULL AFTER cantidad;
+
+ALTER TABLE movimientos_inventario DROP INDEX `folio`;
+
+select * from clientes;
+
+SELECT 
+                m.folio, 
+                m.fecha_hora, 
+                m.cantidad, 
+                m.precio_venta, 
+                l.numero_lote, 
+                p.sku, 
+                p.nombre as producto 
+            FROM movimientos_inventario m 
+            JOIN lotes l ON m.lote_id = l.id 
+            JOIN productos p ON l.producto_id = p.id 
+            WHERE m.cliente_id = 9 AND m.tipo_movimiento = 'Salida' 
+            ORDER BY m.fecha_hora DESC;
+            
+SELECT 
+                m.folio, 
+                m.tipo_movimiento, 
+                m.cantidad, 
+                m.precio,
+                m.fecha_hora, 
+                m.comentarios,
+                p.nombre AS producto, 
+                p.sku,
+                l.numero_lote,
+                u.nombre AS usuario,
+                c.nombre_comercial AS cliente
+            FROM movimientos_inventario m
+            JOIN lotes l ON m.lote_id = l.id
+            JOIN productos p ON l.producto_id = p.id
+            JOIN usuarios u ON m.usuario_id = u.id
+            LEFT JOIN clientes c ON m.cliente_id = c.id
+            ORDER BY m.fecha_hora DESC
+            LIMIT 150;
 
              
 

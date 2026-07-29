@@ -5,7 +5,8 @@ const obtenerClientes = async (req, res) => {
         const query = `
             SELECT 
                 c.id, 
-                c.nombre_comercial AS nombre, 
+                c.nombre_comercial AS nombre,
+                c.razon_social, 
                 c.telefono, 
                 c.correo, 
                 c.estado,
@@ -25,15 +26,15 @@ const obtenerClientes = async (req, res) => {
 };
 
 const crearCliente = async (req, res) => {
-    const { nombre, telefono, correo } = req.body;
+    const { nombre, razon_social, telefono, correo } = req.body; 
 
     if (!nombre) {
         return res.status(400).json({ Mensaje: "El nombre comercial es obligatorio" });
     }
 
     try {
-        const query = `INSERT INTO clientes (nombre_comercial, telefono, correo, estado) VALUES (?, ?, ?, 'Activo')`;
-        await pool.query(query, [nombre, telefono || null, correo || null]);
+        const query = `INSERT INTO clientes (nombre_comercial, razon_social, telefono, correo, estado) VALUES (?, ?, ?, ?, 'Activo')`;
+        await pool.query(query, [nombre, razon_social || null, telefono || null, correo || null]);
         res.status(201).json({ Mensaje: "Cliente registrado exitosamente" });
     } catch (error) {
         console.error(error);
@@ -43,11 +44,11 @@ const crearCliente = async (req, res) => {
 
 const actualizarCliente = async (req, res) => {
     const { id } = req.params;
-    const { nombre, telefono, correo } = req.body;
+    const { nombre, razon_social, telefono, correo } = req.body;
 
     try {
-        const query = `UPDATE clientes SET nombre_comercial = ?, telefono = ?, correo = ? WHERE id = ?`;
-        const [result] = await pool.query(query, [nombre, telefono || null, correo || null, id]);
+        const query = `UPDATE clientes SET nombre_comercial = ?, razon_social = ?, telefono = ?, correo = ? WHERE id = ?`;
+        const [result] = await pool.query(query, [nombre, razon_social || null, telefono || null, correo || null, id]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ Mensaje: "Cliente no encontrado" });
@@ -76,4 +77,30 @@ const eliminarCliente = async (req, res) => {
     }
 };
 
-module.exports = { obtenerClientes, crearCliente, actualizarCliente, eliminarCliente };
+const getHistorialCliente = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [movimientos] = await pool.query(`
+            SELECT 
+                m.folio, 
+                m.fecha_hora, 
+                m.cantidad, 
+                m.precio_venta, 
+                l.numero_lote, 
+                p.sku, 
+                p.nombre as producto 
+            FROM movimientos_inventario m 
+            JOIN lotes l ON m.lote_id = l.id 
+            JOIN productos p ON l.producto_id = p.id 
+            WHERE m.cliente_id = ? AND m.tipo_movimiento = 'Salida' 
+            ORDER BY m.fecha_hora DESC;
+        `, [id]);
+        
+        res.json(movimientos);
+    } catch (error) {
+        console.error("🔥 ERROR SQL en getHistorialCliente:", error);
+        res.status(500).json({ Mensaje: "Error al obtener historial", error });
+    }
+};
+
+module.exports = { obtenerClientes, crearCliente, actualizarCliente, eliminarCliente, getHistorialCliente};

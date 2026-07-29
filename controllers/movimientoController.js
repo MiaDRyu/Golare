@@ -7,6 +7,7 @@ const obtenerHistorialMovimientos = async (req, res) => {
                 m.folio, 
                 m.tipo_movimiento, 
                 m.cantidad, 
+                m.precio_venta,
                 m.fecha_hora, 
                 m.comentarios,
                 p.nombre AS producto, 
