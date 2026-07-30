@@ -8,7 +8,9 @@ const obtenerEquipos = async (req, res) => {
                 e.id, 
                 e.nombre, 
                 e.numero_serie, 
-                e.modelo, 
+                e.modelo,
+                e.permiso,
+                e.duracion_permiso, 
                 e.area_id, 
                 a.nombre AS area_nombre,
                 e.marca_id,
@@ -32,9 +34,8 @@ const obtenerEquipos = async (req, res) => {
     }
 };
 
-// --- CREAR EQUIPO ---
 const crearEquipo = async (req, res) => {
-    const { nombre, numero_serie, modelo, area_id, marca_id, cliente_id, fecha_instalacion, fecha_mantenimiento, estado } = req.body;
+    const { nombre, numero_serie, modelo, permiso, duracion_permiso, area_id, marca_id, cliente_id, fecha_instalacion, fecha_mantenimiento, estado } = req.body;
 
     if (!nombre || !numero_serie || !area_id) {
         return res.status(400).json({ Mensaje: "Nombre, número de serie y área son obligatorios" });
@@ -43,12 +44,13 @@ const crearEquipo = async (req, res) => {
     try {
         const query = `
             INSERT INTO equipos 
-            (nombre, numero_serie, modelo, area_id, marca_id, cliente_id, fecha_instalacion, fecha_mantenimiento, estado) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (nombre, numero_serie, modelo, permiso, duracion_permiso, area_id, marca_id, cliente_id, fecha_instalacion, fecha_mantenimiento, estado) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         await pool.query(query, [nombre, numero_serie, modelo || null, area_id, marca_id || null, cliente_id || null, fecha_instalacion || null, fecha_mantenimiento || null, estado || 'Activo']);
         res.status(201).json({ Mensaje: "Equipo registrado exitosamente" });
     } catch (error) {
+        console.error(error);
         if (error.code === 'ER_DUP_ENTRY') {
             return res.status(409).json({ Mensaje: "El número de serie ya está registrado en otro equipo" });
         }
@@ -59,26 +61,26 @@ const crearEquipo = async (req, res) => {
 // --- ACTUALIZAR EQUIPO ---
 const actualizarEquipo = async (req, res) => {
     const { id } = req.params;
-    const { nombre, numero_serie, modelo, area_id, marca_id, cliente_id, fecha_instalacion, fecha_mantenimiento, estado } = req.body;
+    const { nombre, numero_serie, modelo, permiso, duracion_permiso, area_id, marca_id, cliente_id, fecha_instalacion, fecha_mantenimiento, estado } = req.body;
 
     try {
         const query = `
             UPDATE equipos 
-            SET nombre = ?, numero_serie = ?, modelo = ?, area_id = ?, marca_id = ?, cliente_id = ?, fecha_instalacion = ?, fecha_mantenimiento = ?, estado = ? 
+            SET nombre = ?, numero_serie = ?, modelo = ?, permiso = ?, duracion_permiso = ?, area_id = ?, marca_id = ?, cliente_id = ?, fecha_instalacion = ?, fecha_mantenimiento = ?, estado = ? 
             WHERE id = ?
         `;
-        const [result] = await pool.query(query, [nombre, numero_serie, modelo || null, area_id, marca_id || null, cliente_id || null, fecha_instalacion || null, fecha_mantenimiento || null, estado, id]);
+        const [result] = await pool.query(query, [nombre, numero_serie, modelo || null, permiso, duracion_permiso || null, area_id, marca_id || null, cliente_id || null, fecha_instalacion || null, fecha_mantenimiento || null, estado, id]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ Mensaje: "Equipo no encontrado" });
         }
         res.json({ Mensaje: "Datos del equipo actualizados" });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ Mensaje: "Error al actualizar el equipo" });
     }
 };
 
-// --- ELIMINAR (BAJA LÓGICA) ---
 const eliminarEquipo = async (req, res) => {
     const { id } = req.params;
     try {

@@ -164,7 +164,11 @@ SELECT
             LIMIT 150;
 
 ALTER TABLE productos DROP COLUMN precio;
-             
 
+ALTER TABLE equipos ADD COLUMN permiso ENUM('Prestado', 'Permanente') AFTER modelo;
+
+ALTER TABLE equipos ADD COLUMN duracion_permiso DATE AFTER permiso;
+             
+select * from clientes;
 
 
