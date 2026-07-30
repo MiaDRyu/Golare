@@ -1,40 +1,47 @@
 const pool = require('../config/db');
 
-const obtenerProductos = async(req,res) => {
-    try{
-        // Agregamos el JOIN para categorias
+const obtenerProductos = async (req, res) => {
+    try {
         const query = `
-            SELECT p.*, 
-                   a.nombre AS area_nombre, 
-                   c.nombre AS categoria_nombre, 
-                   m.nombre AS marca_nombre, 
-                   e.nombre AS equipo_nombre 
-            FROM productos AS p 
-            LEFT JOIN areas a ON p.area_id = a.id 
+            SELECT 
+                p.*,
+                a.nombre AS area_nombre,
+                c.nombre AS categoria_nombre,
+                m.nombre AS marca_nombre,
+                e.nombre AS equipo_nombre,
+                COALESCE((
+                    SELECT SUM(l.cantidad_disponible) 
+                    FROM lotes l 
+                    WHERE l.producto_id = p.id AND l.estado = 'Activo'
+                ), 0) AS stock_actual
+            FROM productos p
+            LEFT JOIN areas a ON p.area_id = a.id
             LEFT JOIN categorias_producto c ON p.categoria_id = c.id
-            LEFT JOIN marcas m ON p.marca_id = m.id 
+            LEFT JOIN marcas m ON p.marca_id = m.id
             LEFT JOIN equipos e ON p.equipo_id = e.id
+            WHERE p.estado = 1
+            ORDER BY p.nombre ASC
         `;
+        
+        // Recuerda usar pool.query en lugar de db.query
         const [rows] = await pool.query(query);
         res.json(rows);
-    } catch (error){
-        console.error(error);
-        res.status(500).json({Mensaje:"Error al obtener los productos"});
+    } catch (error) {
+        console.error("🔥 ERROR SQL en obtenerProductos:", error);
+        res.status(500).json({ Mensaje: "Error al obtener productos" });
     }
 };
 
 const crearProductos = async(req,res) =>{
-    // Agregamos categoria_id al destructuring
-    const {sku, nombre, presentacion, descripcion, precio, stock_minimo, estado, area_id, categoria_id, marca_id, equipo_id} = req.body;
+    const {sku, nombre, presentacion, descripcion, stock_minimo, estado, area_id, categoria_id, marca_id, equipo_id} = req.body;
 
-    if (!sku || !nombre || !precio || stock_minimo === undefined){
+    if (!sku || !nombre || stock_minimo === undefined){
         return res.status(400).json({Mensaje: 'Faltan campos obligatorios'});
     }
     try{
-        // Actualizamos el INSERT para incluir categoria_id
         const [result] = await pool.query(
-            'INSERT INTO productos (sku, nombre, presentacion, descripcion, precio, stock_minimo, estado, area_id, categoria_id, marca_id, equipo_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-            [sku, nombre, presentacion, descripcion || null, precio, stock_minimo, estado, area_id || null, categoria_id || null, marca_id || null, equipo_id || null]
+            'INSERT INTO productos (sku, nombre, presentacion, descripcion, stock_minimo, estado, area_id, categoria_id, marca_id, equipo_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+            [sku, nombre, presentacion, descripcion || null, stock_minimo, estado, area_id || null, categoria_id || null, marca_id || null, equipo_id || null]
         );
 
         res.status(201).json({Mensaje:"Producto registrado correctamente", id: result.insertId});
@@ -50,12 +57,12 @@ const crearProductos = async(req,res) =>{
 const actualizarProductos = async(req,res) =>{
     try{
         const {id} = req.params;
-        const {sku, nombre, presentacion, descripcion, precio, stock_minimo, estado, area_id, categoria_id, marca_id, equipo_id} = req.body;
+        const {sku, nombre, presentacion, descripcion, stock_minimo, estado, area_id, categoria_id, marca_id, equipo_id} = req.body;
         
         // Actualizamos el UPDATE para incluir categoria_id
         const [result] = await pool.query(
-            'UPDATE productos SET sku = ?, nombre = ?, presentacion = ?, descripcion = ?, precio = ?, stock_minimo = ?, estado = ?, area_id = ?, categoria_id = ?, marca_id = ?, equipo_id = ? WHERE id = ?', 
-            [sku, nombre, presentacion, descripcion || null, precio, stock_minimo, estado, area_id || null, categoria_id || null, marca_id || null, equipo_id || null, id]
+            'UPDATE productos SET sku = ?, nombre = ?, presentacion = ?, descripcion = ?, stock_minimo = ?, estado = ?, area_id = ?, categoria_id = ?, marca_id = ?, equipo_id = ? WHERE id = ?', 
+            [sku, nombre, presentacion, descripcion || null, stock_minimo, estado, area_id || null, categoria_id || null, marca_id || null, equipo_id || null, id]
         );
         
         if (result.affectedRows === 0){

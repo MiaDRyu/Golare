@@ -163,6 +163,7 @@ SELECT
             ORDER BY m.fecha_hora DESC
             LIMIT 150;
 
+ALTER TABLE productos DROP COLUMN precio;
              
 
 
